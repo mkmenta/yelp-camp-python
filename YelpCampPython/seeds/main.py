@@ -23,7 +23,12 @@ if __name__ == "__main__":
         campgrounds.append(
             Campground(
                 title=f"{descriptor} {place}",
-                location=f"{city['city']}, {city['state']}"
+                image='https://source.unsplash.com/collection/483251',
+                location=f"{city['city']}, {city['state']}",
+                description='Lorem ipsum dolor sit amet consectetur adipisicing elit. Quibusdam dolores vero '
+                            'perferendis laudantium, consequuntur voluptatibus nulla architecto, sit soluta esse iure '
+                            'sed labore ipsam a cum nihil atque molestiae deserunt!',
+                price=round((random.random() * 20) + 10, 2)
             )
         )
     Campground.objects.bulk_create(campgrounds)
