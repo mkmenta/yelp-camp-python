@@ -5,7 +5,8 @@ from pymodm import MongoModel, fields
 
 class Campground(MongoModel):
     title = fields.CharField()
-    price = fields.CharField()
+    image = fields.CharField()
+    price = fields.FloatField()
     description = fields.CharField()
     location = fields.CharField()
 
