@@ -90,3 +90,13 @@ def put_campground(campground_id):
 def delete_campground(campground_id):
     QuerySet(model=Campground, query={'_id': ObjectId(campground_id)}).delete()
     return redirect(f'/campgrounds')
+
+
+def error_page(e):
+    return render_template('error.html', code=e.code, name=e.name, description=e.description), e.code
+
+
+# TODO: can we do this for all codes?
+for c in (404, 403, 410, 500):
+    app.register_error_handler(c, error_page)
+
