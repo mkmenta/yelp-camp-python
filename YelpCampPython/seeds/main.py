@@ -1,18 +1,19 @@
 """Seed MongoDB with data."""
 import random
 
-from pymodm import connect
+from mongoengine import connect
 
 from models.campground import Campground
+from models.review import Review
 from seeds.cities import cities
 from seeds.seed_helpers import descriptors, places
 
 if __name__ == "__main__":
-    connect("mongodb://localhost:27017/yelpCamp", alias="yelp-camp")
+    connect("yelpCamp")
 
-    # Remove all campgrounds
-    Campground.objects.delete()
-    # QuerySet(model=Campground).delete()
+    # Remove all campgrounds and reviews
+    Campground.drop_collection()
+    Review.drop_collection()
 
     # Add random campgrounds
     K = 1000
@@ -31,4 +32,4 @@ if __name__ == "__main__":
                 price=round((random.random() * 20) + 10, 2)
             )
         )
-    Campground.objects.bulk_create(campgrounds)
+    Campground.objects.insert(campgrounds)

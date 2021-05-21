@@ -3,7 +3,7 @@
     <div class="row">
         <h1 class="text-center">Edit Campground</h1>
         <div class="col-6 offset-3">
-            <form action="/campgrounds/{{ campground._id }}?_method=PUT" method="POST" novalidate class="validate-form">
+            <form action="/campgrounds/{{ campground.id }}?_method=PUT" method="POST" novalidate class="validate-form">
                 <div class="mb-3">
                     <label class="form-label" for="title">Title</label>
                     <input class="form-control" type="text" id="title" name="title"
@@ -38,7 +38,7 @@
                     <button class="btn btn-info">Update Campground</button>
                 </div>
             </form>
-            <a href="/campgrounds/{{ campground._id }}">Back To Campground</a>
+            <a href="/campgrounds/{{ campground.id }}">Back To Campground</a>
 
         </div>
     </div>

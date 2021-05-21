@@ -1,15 +1,12 @@
-from pymongo.write_concern import WriteConcern
+from mongoengine import Document, fields, CASCADE, PULL
 
-from pymodm import MongoModel, fields
+from models.review import Review
 
 
-class Campground(MongoModel):
-    title = fields.CharField(required=True)
-    image = fields.CharField(required=True)
+class Campground(Document):
+    title = fields.StringField(required=True)
+    image = fields.StringField(required=True)
     price = fields.FloatField(required=True, min_value=0.)
-    description = fields.CharField(required=True)
-    location = fields.CharField(required=True)
-
-    class Meta:
-        write_concern = WriteConcern(j=True)
-        connection_alias = 'yelp-camp'
+    description = fields.StringField(required=True)
+    location = fields.StringField(required=True)
+    reviews = fields.ListField(fields.ReferenceField(Review, reverse_delete_rule=PULL))  # Auto-remove if Review removed

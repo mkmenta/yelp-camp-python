@@ -1,15 +1,15 @@
-from bson import ObjectId
-from flask import Flask, render_template, request, redirect
-from pymodm import connect
 import re
 
-from pymodm.queryset import QuerySet
+from bson import ObjectId
+from flask import Flask, render_template, request, redirect
+from mongoengine import connect
 
 from models.campground import Campground
+from models.review import Review
 
 app = Flask(__name__)
 
-connect("mongodb://localhost:27017/yelpCamp", alias="yelp-camp")
+connect("yelpCamp")
 
 
 class HTTPMethodOverrideMiddleware(object):
@@ -55,7 +55,7 @@ def campgrounds():
 
 @app.route('/campgrounds/<campground_id>', methods=['GET'])
 def show_campground(campground_id):
-    campground = Campground.objects.get({'_id': ObjectId(campground_id)})
+    campground = Campground.objects.get(id=ObjectId(campground_id))
     return render_template('campgrounds/show.html', campground=campground)
 
 
@@ -68,28 +68,54 @@ def new_campground():
 def post_campground():
     campground = Campground(**request.form)
     campground.save()
-    return redirect(f'/campgrounds/{campground._id}')
+    return redirect(f'/campgrounds/{campground.id}')
 
 
 @app.route('/campgrounds/<campground_id>/edit', methods=['GET'])
 def edit_campground(campground_id):
-    campground = Campground.objects.get({'_id': ObjectId(campground_id)})
+    campground = Campground.objects.get(id=ObjectId(campground_id))
     return render_template('campgrounds/edit.html', campground=campground)
 
 
 @app.route('/campgrounds/<campground_id>', methods=['PUT'])
 def put_campground(campground_id):
-    campground = Campground.objects.get({'_id': ObjectId(campground_id)})
+    campground = Campground.objects.get(id=ObjectId(campground_id))
     for k, v in request.form.items():
-        setattr(campground, k, v)
+        if isinstance(getattr(campground, k), str):
+            setattr(campground, k, v)
+        elif isinstance(getattr(campground, k), float):
+            setattr(campground, k, float(v))
+        else:
+            raise NotImplementedError
     campground.save()
-    return redirect(f'/campgrounds/{campground._id}')
+    return redirect(f'/campgrounds/{campground.id}')
 
 
 @app.route('/campgrounds/<campground_id>', methods=['DELETE'])
 def delete_campground(campground_id):
-    QuerySet(model=Campground, query={'_id': ObjectId(campground_id)}).delete()
+    campground = Campground.objects.get(id=ObjectId(campground_id))
+    # TODO: figure out how to do this automatically. Can't make it work with register_delete_rule...
+    for review in campground.reviews:
+        review.delete()
+    campground.delete()
     return redirect(f'/campgrounds')
+
+
+@app.route('/campgrounds/<campground_id>/reviews', methods=['POST'])
+def post_review(campground_id):
+    campground = Campground.objects.get(id=ObjectId(campground_id))
+    review = Review(**request.form)
+    review.save()
+    campground.reviews.append(review)
+    campground.save()
+    return redirect(f'/campgrounds/{campground.id}')
+
+
+@app.route('/campgrounds/<campground_id>/reviews/<review_id>', methods=['DELETE'])
+def delete_review(campground_id, review_id):
+    review = Review.objects.get(id=ObjectId(review_id))
+    review.delete()  # the reverse_delete_rule=PULL will automatically remove it from the campground
+    return redirect(f'/campgrounds/{campground_id}')
 
 
 def error_page(e):
@@ -99,4 +125,3 @@ def error_page(e):
 # TODO: can we do this for all codes?
 for c in (404, 403, 410, 500):
     app.register_error_handler(c, error_page)
-
