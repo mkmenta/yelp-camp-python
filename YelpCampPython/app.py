@@ -1,121 +1,39 @@
-import re
+from datetime import timedelta
 
-from bson import ObjectId
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template
+from flask_session import Session
 from mongoengine import connect
 
-from models.campground import Campground
-from models.review import Review
+from routes.campgrounds import blueprint as campgrounds_blueprint
+from utils import HTTPMethodOverrideMiddleware
 
+# Initialize app
 app = Flask(__name__)
 
+# Connect to MongoDB
 connect("yelpCamp")
 
+# Initialize sessions
+app.secret_key = b'thisshouldbeabettersecret'
+SESSION_USE_SIGNER = True  # Sign with secret key
+SESSION_TYPE = 'filesystem'  # Save session data to file system
+SESSION_FILE_DIR = '/tmp'  # Save session data into /tmp
+SESSION_COOKIE_HTTPONLY = True  # Avoid XSS
+PERMANENT_SESSION_LIFETIME = timedelta(days=7)  # Lifetime of the session cookie
+app.config.from_object(__name__)
+Session(app)
 
-class HTTPMethodOverrideMiddleware(object):
-    allowed_methods = frozenset([
-        'GET',
-        'HEAD',
-        'POST',
-        'DELETE',
-        'PUT',
-        'PATCH',
-        'OPTIONS'
-    ])
-    bodyless_methods = frozenset(['GET', 'HEAD', 'OPTIONS', 'DELETE'])
-
-    def __init__(self, app, field='_method'):
-        self.app = app
-        self._regex = re.compile('.*' + field + '=([a-zA-Z]+)(&.*|$)')
-
-    def __call__(self, environ, start_response):
-        method = self._regex.match(environ.get('QUERY_STRING', ''))
-        if method is not None:
-            method = method.group(1).upper()
-            if method in self.allowed_methods:
-                environ['REQUEST_METHOD'] = method
-            if method in self.bodyless_methods:
-                environ['CONTENT_LENGTH'] = '0'
-        return self.app(environ, start_response)
-
-
+# Add HTTP method override middleware (to allow PUT, DELETE etc.)
 app.wsgi_app = HTTPMethodOverrideMiddleware(app.wsgi_app)
 
+# Add extra routes from blueprints
+app.register_blueprint(campgrounds_blueprint, url_prefix='/campgrounds')
 
+
+# Main routes
 @app.route('/', methods=['GET'])
 def main():
     return render_template('home.html')
-
-
-@app.route('/campgrounds', methods=['GET'])
-def campgrounds():
-    campgrounds = Campground.objects.all()
-    return render_template('campgrounds/index.html', campgrounds=campgrounds)
-
-
-@app.route('/campgrounds/<campground_id>', methods=['GET'])
-def show_campground(campground_id):
-    campground = Campground.objects.get(id=ObjectId(campground_id))
-    return render_template('campgrounds/show.html', campground=campground)
-
-
-@app.route('/campgrounds/new', methods=['GET'])
-def new_campground():
-    return render_template('campgrounds/new.html')
-
-
-@app.route('/campgrounds', methods=['POST'])
-def post_campground():
-    campground = Campground(**request.form)
-    campground.save()
-    return redirect(f'/campgrounds/{campground.id}')
-
-
-@app.route('/campgrounds/<campground_id>/edit', methods=['GET'])
-def edit_campground(campground_id):
-    campground = Campground.objects.get(id=ObjectId(campground_id))
-    return render_template('campgrounds/edit.html', campground=campground)
-
-
-@app.route('/campgrounds/<campground_id>', methods=['PUT'])
-def put_campground(campground_id):
-    campground = Campground.objects.get(id=ObjectId(campground_id))
-    for k, v in request.form.items():
-        if isinstance(getattr(campground, k), str):
-            setattr(campground, k, v)
-        elif isinstance(getattr(campground, k), float):
-            setattr(campground, k, float(v))
-        else:
-            raise NotImplementedError
-    campground.save()
-    return redirect(f'/campgrounds/{campground.id}')
-
-
-@app.route('/campgrounds/<campground_id>', methods=['DELETE'])
-def delete_campground(campground_id):
-    campground = Campground.objects.get(id=ObjectId(campground_id))
-    # TODO: figure out how to do this automatically. Can't make it work with register_delete_rule...
-    for review in campground.reviews:
-        review.delete()
-    campground.delete()
-    return redirect(f'/campgrounds')
-
-
-@app.route('/campgrounds/<campground_id>/reviews', methods=['POST'])
-def post_review(campground_id):
-    campground = Campground.objects.get(id=ObjectId(campground_id))
-    review = Review(**request.form)
-    review.save()
-    campground.reviews.append(review)
-    campground.save()
-    return redirect(f'/campgrounds/{campground.id}')
-
-
-@app.route('/campgrounds/<campground_id>/reviews/<review_id>', methods=['DELETE'])
-def delete_review(campground_id, review_id):
-    review = Review.objects.get(id=ObjectId(review_id))
-    review.delete()  # the reverse_delete_rule=PULL will automatically remove it from the campground
-    return redirect(f'/campgrounds/{campground_id}')
 
 
 def error_page(e):
