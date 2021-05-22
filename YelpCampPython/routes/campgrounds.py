@@ -16,7 +16,11 @@ def campgrounds():
 
 @blueprint.route('/<campground_id>', methods=['GET'])
 def show_campground(campground_id):
-    campground = Campground.objects.get(id=ObjectId(campground_id))
+    try:
+        campground = Campground.objects.get(id=ObjectId(campground_id))
+    except:
+        flash('Cannot find that campground!', 'error')
+        return redirect('/campgrounds')
     return render_template('campgrounds/show.html', campground=campground)
 
 
@@ -35,7 +39,11 @@ def post_campground():
 
 @blueprint.route('/<campground_id>/edit', methods=['GET'])
 def edit_campground(campground_id):
-    campground = Campground.objects.get(id=ObjectId(campground_id))
+    try:
+        campground = Campground.objects.get(id=ObjectId(campground_id))
+    except:
+        flash('Cannot find that campground!', 'error')
+        return redirect('/campgrounds')
     return render_template('campgrounds/edit.html', campground=campground)
 
 
