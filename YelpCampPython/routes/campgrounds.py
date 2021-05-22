@@ -1,5 +1,5 @@
 from bson import ObjectId
-from flask import Blueprint, render_template, request, redirect
+from flask import Blueprint, render_template, request, redirect, flash
 
 from models.campground import Campground
 from routes.reviews import blueprint as reviews_blueprint
@@ -29,6 +29,7 @@ def new_campground():
 def post_campground():
     campground = Campground(**request.form)
     campground.save()
+    flash('Successfully made a new campground!')
     return redirect(f'/campgrounds/{campground.id}')
 
 
