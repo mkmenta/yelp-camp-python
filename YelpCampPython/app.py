@@ -1,18 +1,36 @@
+from datetime import timedelta
+
 from flask import Flask, render_template
+from flask_session import Session
 from mongoengine import connect
 
 from routes.campgrounds import blueprint as campgrounds_blueprint
 from utils import HTTPMethodOverrideMiddleware
 
+# Initialize app
 app = Flask(__name__)
 
+# Connect to MongoDB
 connect("yelpCamp")
 
+# Initialize sessions
+app.secret_key = b'thisshouldbeabettersecret'
+SESSION_USE_SIGNER = True  # Sign with secret key
+SESSION_TYPE = 'filesystem'  # Save session data to file system
+SESSION_FILE_DIR = '/tmp'  # Save session data into /tmp
+SESSION_COOKIE_HTTPONLY = True  # Avoid XSS
+PERMANENT_SESSION_LIFETIME = timedelta(days=7)  # Lifetime of the session cookie
+app.config.from_object(__name__)
+Session(app)
+
+# Add HTTP method override middleware (to allow PUT, DELETE etc.)
 app.wsgi_app = HTTPMethodOverrideMiddleware(app.wsgi_app)
 
+# Add extra routes from blueprints
 app.register_blueprint(campgrounds_blueprint, url_prefix='/campgrounds')
 
 
+# Main routes
 @app.route('/', methods=['GET'])
 def main():
     return render_template('home.html')
