@@ -29,7 +29,7 @@ def new_campground():
 def post_campground():
     campground = Campground(**request.form)
     campground.save()
-    flash('Successfully made a new campground!')
+    flash('Successfully made a new campground!', 'success')
     return redirect(f'/campgrounds/{campground.id}')
 
 
@@ -50,6 +50,7 @@ def put_campground(campground_id):
         else:
             raise NotImplementedError
     campground.save()
+    flash('Successfully updated campground!', 'success')
     return redirect(f'/campgrounds/{campground.id}')
 
 
@@ -60,4 +61,5 @@ def delete_campground(campground_id):
     for review in campground.reviews:
         review.delete()
     campground.delete()
+    flash('Campground deleted successfully!', 'success')
     return redirect(f'/campgrounds')

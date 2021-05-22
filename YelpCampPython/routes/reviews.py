@@ -1,5 +1,5 @@
 from bson import ObjectId
-from flask import Blueprint, redirect, request
+from flask import Blueprint, redirect, request, flash
 
 from models.campground import Campground
 from models.review import Review
@@ -14,6 +14,7 @@ def post_review(campground_id):
     review.save()
     campground.reviews.append(review)
     campground.save()
+    flash('Created new review!', 'success')
     return redirect(f'/campgrounds/{campground.id}')
 
 
@@ -21,4 +22,5 @@ def post_review(campground_id):
 def delete_review(campground_id, review_id):
     review = Review.objects.get(id=ObjectId(review_id))
     review.delete()  # the reverse_delete_rule=PULL will automatically remove it from the campground
+    flash('Review deleted successfully!', 'success')
     return redirect(f'/campgrounds/{campground_id}')
