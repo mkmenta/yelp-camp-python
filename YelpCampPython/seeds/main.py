@@ -17,6 +17,9 @@ if __name__ == "__main__":
     Review.drop_collection()
     User.drop_collection()
 
+    # Add user
+    user = User.register(username="mike", email="mike@gmail.com", password="mike")
+
     # Add random campgrounds
     K = 1000
     campgrounds = []
@@ -26,6 +29,7 @@ if __name__ == "__main__":
         campgrounds.append(
             Campground(
                 title=f"{descriptor} {place}",
+                author=user.id,
                 image='https://source.unsplash.com/collection/483251',
                 location=f"{city['city']}, {city['state']}",
                 description='Lorem ipsum dolor sit amet consectetur adipisicing elit. Quibusdam dolores vero '
