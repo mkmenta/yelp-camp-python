@@ -1,4 +1,7 @@
 import re
+from urllib.parse import urlparse, urljoin
+
+from flask import request
 
 
 class HTTPMethodOverrideMiddleware(object):
@@ -26,3 +29,9 @@ class HTTPMethodOverrideMiddleware(object):
             if method in self.bodyless_methods:
                 environ['CONTENT_LENGTH'] = '0'
         return self.app(environ, start_response)
+
+
+def is_safe_url(target):
+    ref_url = urlparse(request.host_url)
+    test_url = urlparse(urljoin(request.host_url, target))
+    return test_url.scheme in ('http', 'https') and ref_url.netloc == test_url.netloc

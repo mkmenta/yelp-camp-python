@@ -1,5 +1,6 @@
 from bson import ObjectId
 from flask import Blueprint, render_template, request, redirect, flash
+from flask_login import login_required
 
 from models.campground import Campground
 from routes.reviews import blueprint as reviews_blueprint
@@ -25,11 +26,13 @@ def show_campground(campground_id):
 
 
 @blueprint.route('/new', methods=['GET'])
+@login_required
 def new_campground():
     return render_template('campgrounds/new.html')
 
 
 @blueprint.route('/', methods=['POST'])
+@login_required
 def post_campground():
     campground = Campground(**request.form)
     campground.save()
@@ -38,6 +41,7 @@ def post_campground():
 
 
 @blueprint.route('/<campground_id>/edit', methods=['GET'])
+@login_required
 def edit_campground(campground_id):
     try:
         campground = Campground.objects.get(id=ObjectId(campground_id))
@@ -48,6 +52,7 @@ def edit_campground(campground_id):
 
 
 @blueprint.route('/<campground_id>', methods=['PUT'])
+@login_required
 def put_campground(campground_id):
     campground = Campground.objects.get(id=ObjectId(campground_id))
     for k, v in request.form.items():

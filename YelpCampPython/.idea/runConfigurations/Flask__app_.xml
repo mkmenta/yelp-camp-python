@@ -1,5 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Flask (app)" type="Python.FlaskServer" nameIsGenerated="true">
+    <option name="additionalOptions" value="--port=5000 --host=0.0.0.0" />
     <module name="YelpCampPython" />
     <option name="target" value="app" />
     <option name="targetType" value="PYTHON" />

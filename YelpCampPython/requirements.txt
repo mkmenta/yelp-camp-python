@@ -1,3 +1,5 @@
 flask>=2.0.1
 mongoengine
 flask-session
+flask-login
+bcrypt

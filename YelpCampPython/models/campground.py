@@ -1,4 +1,4 @@
-from mongoengine import Document, fields, CASCADE, PULL
+from mongoengine import Document, fields, PULL
 
 from models.review import Review
 

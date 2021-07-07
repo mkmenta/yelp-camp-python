@@ -5,6 +5,7 @@ from flask_session import Session
 from mongoengine import connect
 
 from routes.campgrounds import blueprint as campgrounds_blueprint
+from routes.users import blueprint as users_blueprint, login_manager
 from utils import HTTPMethodOverrideMiddleware
 
 # Initialize app
@@ -26,8 +27,12 @@ Session(app)
 # Add HTTP method override middleware (to allow PUT, DELETE etc.)
 app.wsgi_app = HTTPMethodOverrideMiddleware(app.wsgi_app)
 
+# Initialize app with login manager
+login_manager.init_app(app)
+
 # Add extra routes from blueprints
 app.register_blueprint(campgrounds_blueprint, url_prefix='/campgrounds')
+app.register_blueprint(users_blueprint, url_prefix='/')
 
 
 # Main routes

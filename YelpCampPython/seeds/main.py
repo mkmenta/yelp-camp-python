@@ -5,6 +5,7 @@ from mongoengine import connect
 
 from models.campground import Campground
 from models.review import Review
+from models.user import User
 from seeds.cities import cities
 from seeds.seed_helpers import descriptors, places
 
@@ -14,6 +15,7 @@ if __name__ == "__main__":
     # Remove all campgrounds and reviews
     Campground.drop_collection()
     Review.drop_collection()
+    User.drop_collection()
 
     # Add random campgrounds
     K = 1000
