@@ -1,12 +1,29 @@
+import functools
+
 from bson import ObjectId
 from flask import Blueprint, render_template, request, redirect, flash
-from flask_login import login_required
+from flask_login import login_required, current_user
 
 from models.campground import Campground
 from routes.reviews import blueprint as reviews_blueprint
 
 blueprint = Blueprint('campgrounds', __name__, template_folder='templates')
 blueprint.register_blueprint(reviews_blueprint, url_prefix='/<campground_id>/reviews')
+
+
+def author_required(func):
+    @functools.wraps(func)
+    def wrapper_author_required(campground_id):
+        try:
+            campground = Campground.objects.get(id=ObjectId(campground_id))
+        except:
+            flash('Cannot find that campground!', 'error')
+            return redirect('/campgrounds')
+        if current_user.is_anonymous or current_user.id != campground.author.id:
+            flash('You do not have permission to do that.', 'error')
+            return redirect(f'/campgrounds/{campground_id}')
+        return func(campground_id)
+    return wrapper_author_required
 
 
 @blueprint.route('/', methods=['GET'])
@@ -35,12 +52,14 @@ def new_campground():
 @login_required
 def post_campground():
     campground = Campground(**request.form)
+    campground.author = current_user
     campground.save()
     flash('Successfully made a new campground!', 'success')
     return redirect(f'/campgrounds/{campground.id}')
 
 
 @blueprint.route('/<campground_id>/edit', methods=['GET'])
+@author_required
 @login_required
 def edit_campground(campground_id):
     try:
@@ -52,6 +71,7 @@ def edit_campground(campground_id):
 
 
 @blueprint.route('/<campground_id>', methods=['PUT'])
+@author_required
 @login_required
 def put_campground(campground_id):
     campground = Campground.objects.get(id=ObjectId(campground_id))
@@ -68,6 +88,8 @@ def put_campground(campground_id):
 
 
 @blueprint.route('/<campground_id>', methods=['DELETE'])
+@author_required
+@login_required
 def delete_campground(campground_id):
     campground = Campground.objects.get(id=ObjectId(campground_id))
     # TODO: figure out how to do this automatically. Can't make it work with register_delete_rule...
