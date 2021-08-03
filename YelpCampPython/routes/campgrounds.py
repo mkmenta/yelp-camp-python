@@ -52,6 +52,7 @@ def new_campground():
 @login_required
 def post_campground():
     campground = Campground(**request.form)
+    campground.author = current_user
     campground.save()
     flash('Successfully made a new campground!', 'success')
     return redirect(f'/campgrounds/{campground.id}')
