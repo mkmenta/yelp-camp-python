@@ -1,57 +1,61 @@
 {% extends "layouts/boilerplate.html" %}
 {% block body %}
-<div class="row">
-    <div class="col-6">
-        <div class="card mb-3">
-            <img src="{{ campground.image }}" class="card-img-top" alt="...">
-            <div class="card-body">
-                <h5 class="card-title">{{ campground.title }}</h5>
-                <p class="card-text">{{ campground.description }}</p>
-            </div>
-            <ul class="list-group list-group-flush">
-                <li class="list-group-item text-muted">{{ campground.location }}</li>
-                <li class="list-group-item">${{ campground.price }}/night</li>
-            </ul>
-            <div class="card-body">
-                <a class="card-link btn btn-info" href="/campgrounds/{{ campground.id }}/edit">Edit</a>
-                <form class="d-inline" action="/campgrounds/{{ campground.id }}?_method=DELETE" method="POST">
-                    <button class="btn btn-danger">Delete</button>
-                </form>
-            </div>
-            <div class="card-footer text-muted">
-                2 days ago
+    <div class="row">
+        <div class="col-6">
+            <div class="card mb-3">
+                <img src="{{ campground.image }}" class="card-img-top" alt="...">
+                <div class="card-body">
+                    <h5 class="card-title">{{ campground.title }}</h5>
+                    <p class="card-text">{{ campground.description }}</p>
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item text-muted">{{ campground.location }}</li>
+                    <li class="list-group-item">Submitted by {{ campground.author.username }}</li>
+                    <li class="list-group-item">${{ campground.price }}/night</li>
+                </ul>
+                {% if not current_user.is_anonymous and current_user.id==campground.author.id %}
+                    <div class="card-body">
+                        <a class="card-link btn btn-info" href="/campgrounds/{{ campground.id }}/edit">Edit</a>
+                        <form class="d-inline" action="/campgrounds/{{ campground.id }}?_method=DELETE" method="POST">
+                            <button class="btn btn-danger">Delete</button>
+                        </form>
+                    </div>
+                {% endif %}
+                <div class="card-footer text-muted">
+                    2 days ago
+                </div>
             </div>
         </div>
-    </div>
-    <div class="col-6">
-        <h2>Leave a Review</h2>
-        <form action="/campgrounds/{{ campground.id }}/reviews" method="POST" class="mb-3 validate-form"
-              novalidate>
-            <div class="mb-3">
-                <label class="form-label" for="rating">Rating</label>
-                <input class="form-range" type="range" min="1" max="5" name="rating" id="rating">
-            </div>
-            <div class="mb-3">
-                <label class="form-label" for="body">Review</label>
-                <textarea class="form-control" name="body" id="body" cols="30" rows="3" required></textarea>
-                <div class="valid-feedback">
-                    Looks good!
+        <div class="col-6">
+            <h2>Leave a Review</h2>
+            <form action="/campgrounds/{{ campground.id }}/reviews" method="POST" class="mb-3 validate-form"
+                  novalidate>
+                <div class="mb-3">
+                    <label class="form-label" for="rating">Rating</label>
+                    <input class="form-range" type="range" min="1" max="5" name="rating" id="rating">
                 </div>
-            </div>
-            <button class="btn btn-success">Submit</button>
-        </form>
-        {% for review in campground.reviews %}
-            <div class="card mb-3 ">
-                <div class="card-body">
-                    <h5 class="card-title">Rating: {{ review.rating }}</h5>
-                    <p class="card-text">Review: {{ review.body }}</p>
-                    <form action="/campgrounds/{{ campground.id }}/reviews/{{ review.id }}?_method=DELETE"
-                          method="POST">
-                        <button class="btn btn-sm btn-danger">Delete</button>
-                    </form>
+                <div class="mb-3">
+                    <label class="form-label" for="body">Review</label>
+                    <textarea class="form-control" name="body" id="body" cols="30" rows="3" required></textarea>
+                    <div class="valid-feedback">
+                        Looks good!
+                    </div>
                 </div>
-            </div>
-        {% endfor %}
+                <button class="btn btn-success">Submit</button>
+            </form>
+            {% for review in campground.reviews %}
+                <div class="card mb-3 ">
+                    <div class="card-body">
+                        <h5 class="card-title">Rating: {{ review.rating }}</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">By {{ review.author.username }}</h6>
+                        <p class="card-text">Review: {{ review.body }}</p>
+                        <form action="/campgrounds/{{ campground.id }}/reviews/{{ review.id }}?_method=DELETE"
+                              method="POST">
+                            <button class="btn btn-sm btn-danger">Delete</button>
+                        </form>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
     </div>
-</div>
 {% endblock %}
