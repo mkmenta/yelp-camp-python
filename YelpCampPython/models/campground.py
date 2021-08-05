@@ -1,13 +1,18 @@
-from mongoengine import Document, fields, PULL
+from mongoengine import Document, fields, PULL, EmbeddedDocument
 
 from models.review import Review
 from models.user import User
 
 
+class CampgroundImage(EmbeddedDocument):
+    public_id = fields.StringField(required=True)
+    url = fields.StringField(required=True)
+
+
 class Campground(Document):
     title = fields.StringField(required=True)
     author = fields.ReferenceField(User)
-    image = fields.StringField(required=True)
+    images = fields.EmbeddedDocumentListField(CampgroundImage)
     price = fields.FloatField(required=True, min_value=0.)
     description = fields.StringField(required=True)
     location = fields.StringField(required=True)

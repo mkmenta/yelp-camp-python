@@ -7,8 +7,9 @@ from bson import ObjectId
 from flask import Blueprint, render_template, request, redirect, flash
 from flask_login import login_required, current_user
 
-from models.campground import Campground
+from models.campground import Campground, CampgroundImage
 from routes.reviews import blueprint as reviews_blueprint
+from utils import allowed_file
 
 blueprint = Blueprint('campgrounds', __name__, template_folder='templates')
 blueprint.register_blueprint(reviews_blueprint, url_prefix='/<campground_id>/reviews')
@@ -26,6 +27,7 @@ def author_required(func):
             flash('You do not have permission to do that.', 'error')
             return redirect(f'/campgrounds/{campground_id}')
         return func(campground_id)
+
     return wrapper_author_required
 
 
@@ -54,11 +56,19 @@ def new_campground():
 @blueprint.route('/', methods=['POST'])
 @login_required
 def post_campground():
-    upload_result = cloudinary.uploader.upload(request.files['image'],
-                                               folder="yelpCamp",
-                                               allowed_formats=['jpeg', 'jpg', 'png'])
+    images = request.files.getlist('image')
+    for image in images:
+        if not allowed_file(image.filename):
+            flash('Invalid file.')
+            return redirect('/new')
+    upload_images = []
+    for image in images:
+        res = cloudinary.uploader.upload(image,
+                                         folder="yelpCamp",
+                                         allowed_formats=['jpeg', 'jpg', 'png'])
+        upload_images.append(CampgroundImage(url=res['url'], public_id=res['public_id']))
     campground = Campground(**request.form)
-    campground.image = upload_result['url']
+    campground.images.extend(upload_images)
     campground.author = current_user
     campground.save()
     flash('Successfully made a new campground!', 'success')

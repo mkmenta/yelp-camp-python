@@ -34,6 +34,9 @@ app.wsgi_app = HTTPMethodOverrideMiddleware(app.wsgi_app)
 # Initialize app with login manager
 login_manager.init_app(app)
 
+# Configure max file upload
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB
+
 # Configure cloudinary
 cloudinary.config(
     cloud_name=os.environ.get('CLOUDINARY_NAME'),
