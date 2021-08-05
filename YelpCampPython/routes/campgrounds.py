@@ -92,6 +92,16 @@ def edit_campground(campground_id):
 @login_required
 def put_campground(campground_id):
     campground = Campground.objects.get(id=ObjectId(campground_id))
+    images = request.files.getlist('image')
+    for image in images:
+        if not allowed_file(image.filename):
+            flash('Invalid file.')
+            return redirect('/new')
+    for image in images:
+        res = cloudinary.uploader.upload(image,
+                                         folder="yelpCamp",
+                                         allowed_formats=['jpeg', 'jpg', 'png'])
+        campground.images.append(CampgroundImage(url=res['url'], public_id=res['public_id']))
     for k, v in request.form.items():
         if isinstance(getattr(campground, k), str):
             setattr(campground, k, v)
