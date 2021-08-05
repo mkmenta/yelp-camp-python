@@ -3,3 +3,4 @@ mongoengine
 flask-session
 flask-login
 bcrypt
+cloudinary

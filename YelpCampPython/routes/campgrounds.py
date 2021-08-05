@@ -1,5 +1,8 @@
 import functools
 
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
 from bson import ObjectId
 from flask import Blueprint, render_template, request, redirect, flash
 from flask_login import login_required, current_user
@@ -51,7 +54,11 @@ def new_campground():
 @blueprint.route('/', methods=['POST'])
 @login_required
 def post_campground():
+    upload_result = cloudinary.uploader.upload(request.files['image'],
+                                               folder="yelpCamp",
+                                               allowed_formats=['jpeg', 'jpg', 'png'])
     campground = Campground(**request.form)
+    campground.image = upload_result['url']
     campground.author = current_user
     campground.save()
     flash('Successfully made a new campground!', 'success')
