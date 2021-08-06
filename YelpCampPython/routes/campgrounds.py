@@ -59,8 +59,8 @@ def post_campground():
     images = request.files.getlist('image')
     for image in images:
         if not allowed_file(image.filename):
-            flash('Invalid file.')
-            return redirect('/new')
+            flash('Invalid file.', 'error')
+            return redirect('/campgrounds/new')
     upload_images = []
     for image in images:
         res = cloudinary.uploader.upload(image,
@@ -91,24 +91,40 @@ def edit_campground(campground_id):
 @author_required
 @login_required
 def put_campground(campground_id):
+    # Get campground
     campground = Campground.objects.get(id=ObjectId(campground_id))
+
+    # Check image filenames
     images = request.files.getlist('image')
+    images = [image for image in images if image.filename != '']
     for image in images:
         if not allowed_file(image.filename):
-            flash('Invalid file.')
-            return redirect('/new')
-    for image in images:
-        res = cloudinary.uploader.upload(image,
-                                         folder="yelpCamp",
-                                         allowed_formats=['jpeg', 'jpg', 'png'])
-        campground.images.append(CampgroundImage(url=res['url'], public_id=res['public_id']))
+            flash('Invalid file.', 'error')
+            return redirect(f'/campgrounds/{campground.id}/edit')
+
+    # Update fields
     for k, v in request.form.items():
+        if not hasattr(campground, k):
+            continue
         if isinstance(getattr(campground, k), str):
             setattr(campground, k, v)
         elif isinstance(getattr(campground, k), float):
             setattr(campground, k, float(v))
         else:
             raise NotImplementedError
+
+    # Delete images
+    delete_images = [dim for dim in request.form.getlist('deleteImages') if dim != '']
+    campground.images = [image for image in campground.images if image.public_id not in delete_images]
+    for dimage in delete_images:
+        cloudinary.uploader.destroy(dimage)
+
+    # Add images
+    for image in images:
+        res = cloudinary.uploader.upload(image,
+                                         folder="yelpCamp",
+                                         allowed_formats=['jpeg', 'jpg', 'png'])
+        campground.images.append(CampgroundImage(url=res['url'], public_id=res['public_id']))
     campground.save()
     flash('Successfully updated campground!', 'success')
     return redirect(f'/campgrounds/{campground.id}')
