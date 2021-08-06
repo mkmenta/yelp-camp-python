@@ -1,5 +1,9 @@
+import os
 from datetime import timedelta
 
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
 from flask import Flask, render_template
 from flask_session import Session
 from mongoengine import connect
@@ -29,6 +33,17 @@ app.wsgi_app = HTTPMethodOverrideMiddleware(app.wsgi_app)
 
 # Initialize app with login manager
 login_manager.init_app(app)
+
+# Configure max file upload
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB
+
+# Configure cloudinary
+cloudinary.config(
+    cloud_name=os.environ.get('CLOUDINARY_NAME'),
+    api_key=os.environ.get('CLOUDINARY_KEY'),
+    api_secret=os.environ.get('CLOUDINARY_SECRET'),
+    secure=True
+)
 
 # Add extra routes from blueprints
 app.register_blueprint(campgrounds_blueprint, url_prefix='/campgrounds')

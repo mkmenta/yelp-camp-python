@@ -30,7 +30,7 @@ if __name__ == "__main__":
             Campground(
                 title=f"{descriptor} {place}",
                 author=user.id,
-                image='https://source.unsplash.com/collection/483251',
+                images=[{'url': 'https://source.unsplash.com/collection/483251', 'public_id': '483251'}],
                 location=f"{city['city']}, {city['state']}",
                 description='Lorem ipsum dolor sit amet consectetur adipisicing elit. Quibusdam dolores vero '
                             'perferendis laudantium, consequuntur voluptatibus nulla architecto, sit soluta esse iure '
