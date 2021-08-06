@@ -36,7 +36,7 @@
                 </div>
                 <div class="mb-3">
                     {% for img in campground.images %}
-                        <img src="{{ img.url }}" class="img-thumbnail" alt="">
+                        <img src="{{ img.thumbnail }}" class="img-thumbnail" alt="">
                         <div class="form-check-inline">
                             <input type="checkbox" id="image-{{ loop.index }}" name="deleteImages"
                                    value="{{ img.public_id }}">

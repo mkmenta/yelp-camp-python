@@ -8,6 +8,10 @@ class CampgroundImage(EmbeddedDocument):
     public_id = fields.StringField(required=True)
     url = fields.StringField(required=True)
 
+    @property
+    def thumbnail(self):
+        return self.url.replace('upload', 'upload/w_200')
+
 
 class Campground(Document):
     title = fields.StringField(required=True)
