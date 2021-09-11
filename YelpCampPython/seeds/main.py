@@ -21,7 +21,7 @@ if __name__ == "__main__":
     user = User.register(username="mike", email="mike@gmail.com", password="mike")
 
     # Add random campgrounds
-    K = 1000
+    K = 200
     campgrounds = []
     for city, descriptor, place in zip(random.choices(cities, k=K),
                                        random.choices(descriptors, k=K),

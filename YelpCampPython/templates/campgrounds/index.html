@@ -33,7 +33,10 @@
         const campgrounds = {
             features: [
                 {% for c in campgrounds %}
-                    {{ c.to_json() | safe}},
+                    {
+                        geometry: {{ c.geometry | safe}},
+                        properties: {{ c.properties | safe }}
+                    },
                 {% endfor %}
             ]
         }
