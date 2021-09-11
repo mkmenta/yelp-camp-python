@@ -63,3 +63,9 @@ def error_page(e):
 # TODO: can we do this for all codes?
 for c in (404, 403, 410, 500):
     app.register_error_handler(c, error_page)
+
+
+# Jinja filters
+@app.template_filter('env_override')
+def env_override(value, key):
+    return os.getenv(key, value)
