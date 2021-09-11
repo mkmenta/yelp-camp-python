@@ -22,3 +22,11 @@ class Campground(Document):
     description = fields.StringField(required=True)
     location = fields.StringField(required=True)
     reviews = fields.ListField(fields.ReferenceField(Review, reverse_delete_rule=PULL))  # Auto-remove if Review removed
+
+    @property
+    def properties(self):
+        return {
+            "popUpMarkup":
+                f'<strong><a href="/campgrounds/{self.id}">{self.title}</a><strong>'
+                f'<p>{self.description[:20]}...</p>'
+        }
