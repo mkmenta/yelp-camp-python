@@ -33,7 +33,7 @@ if __name__ == "__main__":
                 images=[{'url': 'https://source.unsplash.com/collection/483251', 'public_id': '483251'}],
                 geometry={
                     "type": "Point",
-                    "coordinates": (-113.1331, 47.0202)
+                    "coordinates": (city['longitude'], city['latitude'])
                 },
                 location=f"{city['city']}, {city['state']}",
                 description='Lorem ipsum dolor sit amet consectetur adipisicing elit. Quibusdam dolores vero '
