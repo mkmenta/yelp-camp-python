@@ -10,6 +10,7 @@ from flask_login import login_required, current_user
 from models.campground import Campground, CampgroundImage
 from routes.reviews import blueprint as reviews_blueprint
 from utils import allowed_file
+from mapbox import Geocoder
 
 blueprint = Blueprint('campgrounds', __name__, template_folder='templates')
 blueprint.register_blueprint(reviews_blueprint, url_prefix='/<campground_id>/reviews')
@@ -56,6 +57,7 @@ def new_campground():
 @blueprint.route('/', methods=['POST'])
 @login_required
 def post_campground():
+    # Upload images
     images = request.files.getlist('image')
     for image in images:
         if not allowed_file(image.filename):
@@ -67,9 +69,17 @@ def post_campground():
                                          folder="yelpCamp",
                                          allowed_formats=['jpeg', 'jpg', 'png'])
         upload_images.append(CampgroundImage(url=res['url'], public_id=res['public_id']))
+
+    # Get location coordinates
+    geocoder = Geocoder()
+    response = geocoder.forward(request.form['location'], limit=1)
+    geometry = response.geojson()['features'][0]['geometry']
+
+    # Add campground
     campground = Campground(**request.form)
     campground.images.extend(upload_images)
     campground.author = current_user
+    campground.geometry = geometry
     campground.save()
     flash('Successfully made a new campground!', 'success')
     return redirect(f'/campgrounds/{campground.id}')

@@ -17,6 +17,7 @@ class Campground(Document):
     title = fields.StringField(required=True)
     author = fields.ReferenceField(User)
     images = fields.EmbeddedDocumentListField(CampgroundImage)
+    geometry = fields.PointField()
     price = fields.FloatField(required=True, min_value=0.)
     description = fields.StringField(required=True)
     location = fields.StringField(required=True)
