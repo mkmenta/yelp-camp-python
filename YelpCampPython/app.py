@@ -20,11 +20,13 @@ connect("yelpCamp")
 
 # Initialize sessions
 app.secret_key = b'thisshouldbeabettersecret'
+SESSION_COOKIE_NAME = "ycs3s"  # Name of the session cookie in the browser
 SESSION_USE_SIGNER = True  # Sign with secret key
 SESSION_TYPE = 'filesystem'  # Save session data to file system
 SESSION_FILE_DIR = '/tmp'  # Save session data into /tmp
 SESSION_COOKIE_HTTPONLY = True  # Avoid XSS
 PERMANENT_SESSION_LIFETIME = timedelta(days=7)  # Lifetime of the session cookie
+# SESSION_COOKIE_SECURE = True  # TODO: this should be set for production
 app.config.from_object(__name__)
 Session(app)
 
