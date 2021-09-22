@@ -10,7 +10,7 @@ from mongoengine import connect
 
 from routes.campgrounds import blueprint as campgrounds_blueprint
 from routes.users import blueprint as users_blueprint, login_manager
-from utils import HTTPMethodOverrideMiddleware
+from utils import HTTPMethodOverrideMiddleware, SanitizedRequest
 
 # Initialize app
 app = Flask(__name__)
@@ -30,6 +30,9 @@ Session(app)
 
 # Add HTTP method override middleware (to allow PUT, DELETE etc.)
 app.wsgi_app = HTTPMethodOverrideMiddleware(app.wsgi_app)
+
+# Use improved Request class that sanitizes form data
+app.request_class = SanitizedRequest
 
 # Initialize app with login manager
 login_manager.init_app(app)
