@@ -5,3 +5,4 @@ flask-login
 bcrypt
 cloudinary
 mapbox
+flask-talisman

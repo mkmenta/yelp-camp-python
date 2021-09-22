@@ -11,6 +11,7 @@ from mongoengine import connect
 from routes.campgrounds import blueprint as campgrounds_blueprint
 from routes.users import blueprint as users_blueprint, login_manager
 from utils import HTTPMethodOverrideMiddleware, SanitizedRequest
+from flask_talisman import Talisman
 
 # Initialize app
 app = Flask(__name__)
@@ -29,6 +30,9 @@ PERMANENT_SESSION_LIFETIME = timedelta(days=7)  # Lifetime of the session cookie
 # SESSION_COOKIE_SECURE = True  # TODO: this should be set for production
 app.config.from_object(__name__)
 Session(app)
+
+# Add Talisman for security
+Talisman(app)
 
 # Add HTTP method override middleware (to allow PUT, DELETE etc.)
 app.wsgi_app = HTTPMethodOverrideMiddleware(app.wsgi_app)
