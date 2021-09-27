@@ -38,6 +38,7 @@
                     <div class="card-body">
                         <a class="card-link btn btn-info" href="/campgrounds/{{ campground.id }}/edit">Edit</a>
                         <form class="d-inline" action="/campgrounds/{{ campground.id }}?_method=DELETE" method="POST">
+                            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
                             <button class="btn btn-danger">Delete</button>
                         </form>
                     </div>
@@ -53,6 +54,7 @@
                 <h2>Leave a Review</h2>
                 <form action="/campgrounds/{{ campground.id }}/reviews" method="POST" class="mb-3 validate-form"
                       novalidate>
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
                     <fieldset class="starability-basic">
                         <input type="radio" id="no-rate" class="input-no-rate" name="rating" value="0" checked
                                aria-label="No rating."/>
@@ -88,6 +90,7 @@
                         {% if not current_user.is_anonymous and current_user.id==review.author.id %}
                             <form action="/campgrounds/{{ campground.id }}/reviews/{{ review.id }}?_method=DELETE"
                                   method="POST">
+                                <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
                                 <button class="btn btn-sm btn-danger">Delete</button>
                             </form>
                         {% endif %}

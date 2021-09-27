@@ -1,7 +1,9 @@
 import re
 from urllib.parse import urlparse, urljoin
 
-from flask import request
+from flask import request, escape, Request
+# from werkzeug import Request
+from werkzeug.datastructures import ImmutableMultiDict
 
 
 class HTTPMethodOverrideMiddleware(object):
@@ -29,6 +31,19 @@ class HTTPMethodOverrideMiddleware(object):
             if method in self.bodyless_methods:
                 environ['CONTENT_LENGTH'] = '0'
         return self.app(environ, start_response)
+
+
+class SanitizedRequest(Request):
+    """Sanitizes form fields automatically to escape HTML."""
+
+    def __init__(self, environ, populate_request=True, shallow=False):
+        super(SanitizedRequest, self).__init__(environ, populate_request, shallow)
+        self.unsanitized_form = self.form
+        if self.form:
+            sanitized_form = {}
+            for k, v in self.form.items():
+                sanitized_form[k] = escape(v)
+            self.form = ImmutableMultiDict(sanitized_form)
 
 
 def is_safe_url(target):
