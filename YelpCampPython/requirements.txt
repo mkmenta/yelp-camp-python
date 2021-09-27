@@ -6,3 +6,4 @@ bcrypt
 cloudinary
 mapbox
 flask-talisman
+flask-seasurf

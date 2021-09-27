@@ -5,6 +5,7 @@ import cloudinary
 import cloudinary.uploader
 import cloudinary.api
 from flask import Flask, render_template
+from flask_seasurf import SeaSurf
 from flask_session import Session
 from mongoengine import connect
 
@@ -32,7 +33,40 @@ app.config.from_object(__name__)
 Session(app)
 
 # Add Talisman for security
-Talisman(app)
+csp = {'default-src': [],
+       'connect-src': ["'self'",
+                       "https://api.mapbox.com",
+                       "https://*.tiles.mapbox.com",
+                       "https://events.mapbox.com", ],
+       'script-src': ["'unsafe-inline'",
+                      "'self'",
+                      "https://stackpath.bootstrapcdn.com",
+                      "https://api.tiles.mapbox.com",
+                      "https://api.mapbox.com",
+                      "https://kit.fontawesome.com",
+                      "https://cdnjs.cloudflare.com",
+                      "https://cdn.jsdelivr.net"],
+       'style-src': ["'self'",
+                     "'unsafe-inline'",
+                     "https://kit-free.fontawesome.com",
+                     "https://stackpath.bootstrapcdn.com",
+                     "https://api.mapbox.com",
+                     "https://api.tiles.mapbox.com",
+                     "https://fonts.googleapis.com",
+                     "https://use.fontawesome.com"],
+       'worker-src': ["'self'",
+                      "blob:"],
+       'child-src': ["blob:"],
+       'object-src': [],
+       'img-src': ["'self'",
+                   "blob:",
+                   "data:",
+                   f"https://res.cloudinary.com/{os.environ.get('CLOUDINARY_NAME')}/",
+                   "https://images.unsplash.com",
+                   "https://source.unsplash.com"],
+       'font-src': ["'self'"], }
+Talisman(app, content_security_policy=csp)
+SeaSurf(app)
 
 # Add HTTP method override middleware (to allow PUT, DELETE etc.)
 app.wsgi_app = HTTPMethodOverrideMiddleware(app.wsgi_app)
