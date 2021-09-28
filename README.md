@@ -1,5 +1,5 @@
 # YelpCamp Python
-Final project from the [Web Developer Boorcamp](https://www.udemy.com/course/the-web-developer-bootcamp/) 
+Final project from the [Web Developer Bootcamp](https://www.udemy.com/course/the-web-developer-bootcamp/) 
 from _Colt Steele_ in _Udemy_ translated into Python using Flask.
 
 Run the app with:
