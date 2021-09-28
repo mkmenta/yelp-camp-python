@@ -18,10 +18,10 @@ from flask_talisman import Talisman
 app = Flask(__name__)
 
 # Connect to MongoDB
-connect("yelpCamp")
+connect(host=os.environ.get('MONGOURI'))
 
 # Initialize sessions
-app.secret_key = b'thisshouldbeabettersecret'
+app.secret_key = os.environ.get('YELP_CAMP_SECRET')
 SESSION_COOKIE_NAME = "ycs3s"  # Name of the session cookie in the browser
 SESSION_USE_SIGNER = True  # Sign with secret key
 SESSION_TYPE = 'filesystem'  # Save session data to file system

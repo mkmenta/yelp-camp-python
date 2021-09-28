@@ -1,4 +1,5 @@
 """Seed MongoDB with data."""
+import os
 import random
 
 from mongoengine import connect
@@ -10,7 +11,7 @@ from seeds.cities import cities
 from seeds.seed_helpers import descriptors, places
 
 if __name__ == "__main__":
-    connect("yelpCamp")
+    connect(host=os.environ.get('MONGOURI'))
 
     # Remove all campgrounds and reviews
     Campground.drop_collection()
